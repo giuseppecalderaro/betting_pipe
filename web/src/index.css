@@ -1,0 +1,263 @@
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --back-color: #2ea043;
+  --back-bg: rgba(46, 160, 67, 0.12);
+  --lay-color: #f85149;
+  --lay-bg: rgba(248, 81, 73, 0.12);
+  --accent: #58a6ff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+}
+
+.status-dot.connected {
+  background: var(--back-color);
+}
+
+.status-dot.error {
+  background: var(--lay-color);
+}
+
+.market-info {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.market-info span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.market-info .value {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.runner-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.runner-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.runner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.runner-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.runner-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.runner-stats .value {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.chart-container {
+  width: 100%;
+  height: 280px;
+}
+
+.ladder {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.ladder-side {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ladder-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  color: var(--text-dim);
+}
+
+.ladder-title.back {
+  color: var(--back-color);
+}
+
+.ladder-title.lay {
+  color: var(--lay-color);
+}
+
+.ladder-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', monospace;
+}
+
+.ladder-row.back {
+  background: var(--back-bg);
+}
+
+.ladder-row.lay {
+  background: var(--lay-bg);
+}
+
+.ladder-row .price {
+  font-weight: 600;
+}
+
+.ladder-row .size {
+  color: var(--text-dim);
+}
+
+.connect-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+}
+
+.connect-form h2 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.connect-form p {
+  color: var(--text-dim);
+  font-size: 14px;
+  max-width: 400px;
+  text-align: center;
+}
+
+.connect-form input {
+  width: 320px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+}
+
+.connect-form input:focus {
+  border-color: var(--accent);
+}
+
+.connect-form button {
+  padding: 10px 24px;
+  background: var(--accent);
+  color: #0d1117;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.connect-form button:hover {
+  opacity: 0.9;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.legend-swatch.back {
+  background: var(--back-color);
+}
+
+.legend-swatch.lay {
+  background: var(--lay-color);
+}

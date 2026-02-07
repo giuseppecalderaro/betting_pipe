@@ -1,0 +1,54 @@
+[package]
+name = "bpipe"
+version = "0.1.0"
+edition = "2024"
+description = "Betfair Exchange API client library and CLI for real-time betting"
+license = "MIT"
+
+[[bin]]
+name = "bpipe"
+path = "src/bin/bpipe.rs"
+
+[[bin]]
+name = "bpipe-ws"
+path = "src/bin/bpipe_ws.rs"
+
+[[bin]]
+name = "bpipe-scrape"
+path = "src/bin/bpipe_scrape.rs"
+
+[dependencies]
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "native-tls", "multipart", "gzip", "brotli", "deflate"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_repr = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+
+# TLS for streaming
+tokio-native-tls = "0.3"
+native-tls = "0.2"
+
+# CLI
+clap = { version = "4", features = ["derive", "env"] }
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Misc
+futures = "0.3"
+uuid = { version = "1", features = ["v4"] }
+tabled = "0.17"
+tokio-tungstenite = "0.26"
+futures-util = "0.3"
+scraper = "0.22"
