@@ -8,6 +8,9 @@ export interface MatchEntry {
   prob_away: number | null
   bf_event_id: string
   bf_event_name: string
+  live?: boolean
+  market_status?: string
+  score?: string
 }
 
 export interface MatchesResponse {
@@ -16,6 +19,7 @@ export interface MatchesResponse {
   total_scraped: number
   total_matched: number
   total_unmatched: number
+  last_poll: string | null
   matches: MatchEntry[]
 }
 

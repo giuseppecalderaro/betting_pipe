@@ -8,12 +8,19 @@ use axum::{
 };
 use clap::Parser;
 use serde::Serialize;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::Arc;
+use tokio::sync::RwLock;
 use tower_http::{
     cors::CorsLayer,
     services::ServeDir,
 };
+use tracing::{info, warn, error};
+
+use bpipe::types::betting::*;
+use bpipe::types::common::*;
+use bpipe::{auth, BetfairClient, BetfairConfig};
 
 // ── CLI ──────────────────────────────────────────────────────────────
 
@@ -31,6 +38,30 @@ struct Cli {
     /// Port to listen on
     #[arg(long, default_value_t = 3001)]
     port: u16,
+
+    /// Betfair Application Key
+    #[arg(long, env = "BETFAIR_APP_KEY")]
+    app_key: String,
+
+    /// Betfair username
+    #[arg(long, env = "BETFAIR_USERNAME")]
+    username: String,
+
+    /// Betfair password
+    #[arg(long, env = "BETFAIR_PASSWORD")]
+    password: String,
+
+    /// Path to client certificate (for bot login)
+    #[arg(long, env = "BETFAIR_CERT_PATH")]
+    cert: Option<PathBuf>,
+
+    /// Path to client key (for bot login)
+    #[arg(long, env = "BETFAIR_KEY_PATH")]
+    key: Option<PathBuf>,
+
+    /// Polling interval in seconds (default 300 = 5 minutes)
+    #[arg(long, default_value_t = 300)]
+    poll_interval: u64,
 }
 
 // ── Types ────────────────────────────────────────────────────────────
@@ -46,6 +77,12 @@ struct MatchEntry {
     prob_away: Option<u32>,
     bf_event_id: String,
     bf_event_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    live: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    market_status: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    score: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -55,6 +92,7 @@ struct MatchesResponse {
     total_scraped: u32,
     total_matched: u32,
     total_unmatched: u32,
+    last_poll: Option<String>,
     matches: Vec<MatchEntry>,
 }
 
@@ -68,8 +106,20 @@ struct ErrorResponse {
     error: String,
 }
 
+/// Live status for a single event.
+#[derive(Debug, Clone, Serialize)]
+struct LiveStatus {
+    inplay: bool,
+    status: String,
+    score: Option<String>,
+}
+
 struct AppState {
     data_dir: PathBuf,
+    /// event_id -> LiveStatus, updated by background poller
+    live_statuses: RwLock<HashMap<String, LiveStatus>>,
+    /// Last time the poller ran
+    last_poll: RwLock<Option<String>>,
 }
 
 // ── Parser ───────────────────────────────────────────────────────────
@@ -138,6 +188,7 @@ fn parse_matched_file(content: &str) -> Result<MatchesResponse> {
         total_scraped,
         total_matched,
         total_unmatched,
+        last_poll: None,
         matches,
     })
 }
@@ -193,6 +244,9 @@ fn parse_match_line(line: &str, has_result: bool) -> Option<MatchEntry> {
         prob_away,
         bf_event_id,
         bf_event_name,
+        live: None,
+        market_status: None,
+        score: None,
     })
 }
 
@@ -322,23 +376,262 @@ async fn get_matches(
     }
     response.file_name = file_name;
 
+    // Merge live statuses
+    {
+        let live = state.live_statuses.read().await;
+        let last_poll = state.last_poll.read().await;
+        response.last_poll = last_poll.clone();
+        for m in &mut response.matches {
+            if let Some(status) = live.get(&m.bf_event_id) {
+                m.live = Some(status.inplay);
+                m.market_status = Some(status.status.clone());
+                m.score = status.score.clone();
+            }
+        }
+    }
+
     Ok(Json(response))
+}
+
+// ── Live Status Endpoint ─────────────────────────────────────────────
+
+async fn get_live(
+    State(state): State<Arc<AppState>>,
+) -> Json<HashMap<String, LiveStatus>> {
+    let live = state.live_statuses.read().await;
+    Json(live.clone())
+}
+
+// ── Background Poller ────────────────────────────────────────────────
+
+/// Collect all event IDs from the latest matched file.
+fn collect_event_ids(data_dir: &PathBuf) -> Vec<String> {
+    let files = match find_matched_files(data_dir) {
+        Ok(f) => f,
+        Err(_) => return vec![],
+    };
+    let latest = match files.first() {
+        Some(f) => f,
+        None => return vec![],
+    };
+    let content = match std::fs::read_to_string(data_dir.join(latest)) {
+        Ok(c) => c,
+        Err(_) => return vec![],
+    };
+    let response = match parse_matched_file(&content) {
+        Ok(r) => r,
+        Err(_) => return vec![],
+    };
+    let ids: HashSet<String> = response.matches.iter()
+        .filter(|m| !m.has_result && !m.bf_event_id.is_empty())
+        .map(|m| m.bf_event_id.clone())
+        .collect();
+    ids.into_iter().collect()
+}
+
+/// Query Betfair for the live status of events.
+async fn poll_betfair(
+    client: &BetfairClient,
+    event_ids: &[String],
+) -> Result<HashMap<String, LiveStatus>> {
+    let mut result = HashMap::new();
+
+    if event_ids.is_empty() {
+        return Ok(result);
+    }
+
+    // Query in batches of 25 event IDs (Betfair limit)
+    for chunk in event_ids.chunks(25) {
+        let filter = MarketFilter {
+            event_ids: Some(chunk.to_vec()),
+            market_type_codes: Some(vec!["MATCH_ODDS".to_string()]),
+            ..Default::default()
+        };
+
+        // Get market catalogues to find market IDs per event
+        let catalogues = client.list_market_catalogue(&ListMarketCatalogueRequest {
+            filter: filter.clone(),
+            market_projection: Some(vec![MarketProjection::Event]),
+            sort: None,
+            max_results: Some(100),
+            locale: None,
+        }).await;
+
+        let catalogues = match catalogues {
+            Ok(c) => c,
+            Err(e) => {
+                warn!("Failed to list market catalogue: {}", e);
+                continue;
+            }
+        };
+
+        if catalogues.is_empty() {
+            // All events in this batch have no markets — mark them as closed
+            for id in chunk {
+                result.insert(id.clone(), LiveStatus {
+                    inplay: false,
+                    status: "CLOSED".to_string(),
+                    score: None,
+                });
+            }
+            continue;
+        }
+
+        // Build event_id -> market_id mapping
+        let mut event_to_market: HashMap<String, String> = HashMap::new();
+        for cat in &catalogues {
+            if let Some(ref event) = cat.event {
+                event_to_market.insert(event.id.clone(), cat.market_id.clone());
+            }
+        }
+
+        // Get live status for all markets in one call
+        let market_ids: Vec<String> = catalogues.iter().map(|c| c.market_id.clone()).collect();
+        let books = client.list_market_book(&ListMarketBookRequest {
+            market_ids,
+            price_projection: None,
+            order_projection: None,
+            match_projection: None,
+            currency_code: None,
+            locale: None,
+        }).await;
+
+        let books = match books {
+            Ok(b) => b,
+            Err(e) => {
+                warn!("Failed to list market book: {}", e);
+                continue;
+            }
+        };
+
+        // Map market_id -> MarketBook for lookup
+        let book_map: HashMap<String, &MarketBook> = books.iter()
+            .map(|b| (b.market_id.clone(), b))
+            .collect();
+
+        // For each event in this chunk, determine its live status
+        for id in chunk {
+            if let Some(market_id) = event_to_market.get(id) {
+                if let Some(book) = book_map.get(market_id) {
+                    let inplay = book.inplay.unwrap_or(false);
+                    let status = book.status
+                        .map(|s| format!("{:?}", s).to_uppercase())
+                        .unwrap_or_else(|| "UNKNOWN".to_string());
+
+                    // Try to extract score from runner names if available
+                    result.insert(id.clone(), LiveStatus {
+                        inplay,
+                        status,
+                        score: None,
+                    });
+                }
+            } else {
+                // No market found — event finished or not yet available
+                result.insert(id.clone(), LiveStatus {
+                    inplay: false,
+                    status: "CLOSED".to_string(),
+                    score: None,
+                });
+            }
+        }
+    }
+
+    Ok(result)
+}
+
+/// Background task that polls Betfair every N seconds.
+async fn run_poller(
+    state: Arc<AppState>,
+    client: BetfairClient,
+    interval_secs: u64,
+) {
+    let mut interval = tokio::time::interval(std::time::Duration::from_secs(interval_secs));
+
+    loop {
+        interval.tick().await;
+
+        let event_ids = collect_event_ids(&state.data_dir);
+        if event_ids.is_empty() {
+            info!("Poller: no events to check");
+            let mut last_poll = state.last_poll.write().await;
+            *last_poll = Some(chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string());
+            continue;
+        }
+
+        info!("Poller: checking {} events on Betfair…", event_ids.len());
+
+        // Keep session alive
+        if let Err(e) = client.keep_alive().await {
+            warn!("Keep-alive failed: {} — will retry next cycle", e);
+        }
+
+        match poll_betfair(&client, &event_ids).await {
+            Ok(statuses) => {
+                let live_count = statuses.values().filter(|s| s.inplay).count();
+                let closed_count = statuses.values().filter(|s| s.status == "CLOSED").count();
+                info!(
+                    "Poller: {} events polled — {} live, {} closed, {} pre-match",
+                    statuses.len(),
+                    live_count,
+                    closed_count,
+                    statuses.len() - live_count - closed_count,
+                );
+
+                let mut live = state.live_statuses.write().await;
+                *live = statuses;
+            }
+            Err(e) => {
+                error!("Poller: failed to poll Betfair: {}", e);
+            }
+        }
+
+        let mut last_poll = state.last_poll.write().await;
+        *last_poll = Some(chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string());
+    }
 }
 
 // ── Main ─────────────────────────────────────────────────────────────
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| "bpipe_web=info".parse().unwrap()),
+        )
+        .init();
+
     let cli = Cli::parse();
+
+    // Authenticate with Betfair
+    let config = if let (Some(cert), Some(key)) = (&cli.cert, &cli.key) {
+        BetfairConfig::certificate(&cli.app_key, &cli.username, &cli.password, cert, key)
+    } else {
+        BetfairConfig::interactive(&cli.app_key, &cli.username, &cli.password)
+    };
+
+    info!("Authenticating with Betfair…");
+    let session = auth::login(&config).await?;
+    let client = BetfairClient::new(session, &config);
+    info!("Authenticated successfully");
 
     let state = Arc::new(AppState {
         data_dir: cli.data_dir.clone(),
+        live_statuses: RwLock::new(HashMap::new()),
+        last_poll: RwLock::new(None),
+    });
+
+    // Start the background poller
+    let poller_state = Arc::clone(&state);
+    let poll_interval = cli.poll_interval;
+    tokio::spawn(async move {
+        run_poller(poller_state, client, poll_interval).await;
     });
 
     let api = Router::new()
         .route("/api/files", get(get_files))
         .route("/api/matches", get(get_matches))
+        .route("/api/live", get(get_live))
         .with_state(state);
 
     let app = if cli.static_dir.exists() {
@@ -356,6 +649,7 @@ async fn main() -> Result<()> {
     let addr = format!("0.0.0.0:{}", cli.port);
     println!("🌐 bpipe-web listening on http://localhost:{}", cli.port);
     println!("   Data dir: {:?}", cli.data_dir);
+    println!("   Polling Betfair every {} seconds", cli.poll_interval);
 
     let listener = tokio::net::TcpListener::bind(&addr).await?;
     axum::serve(listener, app).await?;

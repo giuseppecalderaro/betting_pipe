@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { MatchesResponse, FileListResponse, MatchEntry } from './matchTypes'
 
 const API_BASE = ''
+const AUTO_REFRESH_MS = 30_000 // refresh data every 30s
 
-type SortField = 'match_name' | 'date' | 'tip' | 'prob_home' | 'prob_draw' | 'prob_away' | 'bf_event_name'
+type SortField = 'match_name' | 'date' | 'tip' | 'prob_home' | 'prob_draw' | 'prob_away' | 'bf_event_name' | 'live'
 type SortDir = 'asc' | 'desc'
 
 export function MatchesView() {
@@ -17,6 +18,7 @@ export function MatchesView() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [sortField, setSortField] = useState<SortField>('date')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
+  const refreshTimer = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Fetch file list
   useEffect(() => {
@@ -55,6 +57,17 @@ export function MatchesView() {
     fetchMatches()
   }, [fetchMatches])
 
+  // Auto-refresh every 30 seconds to pick up live status changes
+  useEffect(() => {
+    if (refreshTimer.current) clearInterval(refreshTimer.current)
+    refreshTimer.current = setInterval(() => {
+      fetchMatches()
+    }, AUTO_REFRESH_MS)
+    return () => {
+      if (refreshTimer.current) clearInterval(refreshTimer.current)
+    }
+  }, [fetchMatches])
+
   // Sort handler
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -86,6 +99,9 @@ export function MatchesView() {
       if (tipFilter !== 'all' && m.tip !== tipFilter) return false
       if (statusFilter === 'result' && !m.has_result) return false
       if (statusFilter === 'pending' && m.has_result) return false
+      if (statusFilter === 'live' && !m.live) return false
+      if (statusFilter === 'pre-match' && (m.has_result || m.live)) return false
+      if (statusFilter === 'closed' && m.market_status !== 'CLOSED') return false
       return true
     })
     .sort((a: MatchEntry, b: MatchEntry) => {
@@ -111,6 +127,9 @@ export function MatchesView() {
           break
         case 'bf_event_name':
           cmp = a.bf_event_name.localeCompare(b.bf_event_name)
+          break
+        case 'live':
+          cmp = (a.live ? 1 : 0) - (b.live ? 1 : 0)
           break
       }
       return sortDir === 'asc' ? cmp : -cmp
@@ -168,6 +187,11 @@ export function MatchesView() {
         <h1>bpipe — Matched Events</h1>
         {data && (
           <div className="status">
+            {data.matches.some(m => m.live) && (
+              <span className="stat-pill live-pill">
+                <span className="live-dot-pulse" /> {data.matches.filter(m => m.live).length} LIVE
+              </span>
+            )}
             <span className="stat-pill">{data.total_matched} matched</span>
             <span className="stat-pill dim">{data.total_unmatched} unmatched</span>
             <span className="stat-pill dim">{data.total_scraped} scraped</span>
@@ -214,8 +238,11 @@ export function MatchesView() {
             onChange={e => setStatusFilter(e.target.value)}
           >
             <option value="all">All Status</option>
-            <option value="pending">Pending</option>
+            <option value="live">🔴 Live</option>
+            <option value="pre-match">Pre-match</option>
             <option value="result">Has Result</option>
+            <option value="closed">Closed</option>
+            <option value="pending">Pending</option>
           </select>
         </div>
 
@@ -227,9 +254,10 @@ export function MatchesView() {
         </div>
       </div>
 
-      {data && data.generated_at && (
+      {data && (data.generated_at || data.last_poll) && (
         <div className="generated-at">
-          Generated: {data.generated_at}
+          {data.generated_at && <>Generated: {data.generated_at}</>}
+          {data.last_poll && <> · Last Betfair poll: {data.last_poll}</>}
         </div>
       )}
 
@@ -238,6 +266,9 @@ export function MatchesView() {
           <thead>
             <tr>
               <th className="th-status">St</th>
+              <th className="th-sortable th-center" onClick={() => handleSort('live')}>
+                Live{sortIndicator('live')}
+              </th>
               <th className="th-sortable" onClick={() => handleSort('match_name')}>
                 Match{sortIndicator('match_name')}
               </th>
@@ -256,9 +287,18 @@ export function MatchesView() {
           </thead>
           <tbody>
             {filteredMatches.map((m, i) => (
-              <tr key={i} className={m.has_result ? 'row-result' : ''}>
+              <tr key={i} className={`${m.has_result ? 'row-result' : ''} ${m.live ? 'row-live' : ''}`}>
                 <td className="td-status">
                   {m.has_result ? <span className="result-check">✓</span> : <span className="pending-dot">●</span>}
+                </td>
+                <td className="td-live">
+                  {m.live ? (
+                    <span className="live-badge"><span className="live-dot" />LIVE</span>
+                  ) : m.market_status === 'CLOSED' ? (
+                    <span className="closed-badge">END</span>
+                  ) : (
+                    <span className="pre-badge">—</span>
+                  )}
                 </td>
                 <td className="td-match">{m.match_name}</td>
                 <td className="td-date">{m.date}</td>
