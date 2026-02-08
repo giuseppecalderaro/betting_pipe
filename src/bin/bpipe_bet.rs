@@ -237,14 +237,22 @@ fn parse_matched_file(path: &PathBuf) -> Result<Vec<MatchedEntry>> {
 }
 
 /// Find the "Match Odds" market for an event and return the catalogue.
+/// Tries MATCH_ODDS first, then MATCH_ODDS_UNMANAGED as fallback.
+/// If neither is found, lists available market types for diagnostics.
 async fn find_match_odds_market(
     client: &BetfairClient,
     event_id: &str,
 ) -> Result<Option<MarketCatalogue>> {
+    // Try these market types in order of preference
+    let market_types = vec![
+        "MATCH_ODDS".to_string(),
+        "MATCH_ODDS_UNMANAGED".to_string(),
+    ];
+
     let request = ListMarketCatalogueRequest {
         filter: MarketFilter {
             event_ids: Some(vec![event_id.to_string()]),
-            market_type_codes: Some(vec!["MATCH_ODDS".to_string()]),
+            market_type_codes: Some(market_types),
             ..Default::default()
         },
         market_projection: Some(vec![
@@ -252,12 +260,33 @@ async fn find_match_odds_market(
             MarketProjection::MarketStartTime,
         ]),
         sort: Some(MarketSort::FirstToStart),
-        max_results: Some(1),
+        max_results: Some(5),
         locale: None,
     };
 
     let results = client.list_market_catalogue(&request).await?;
-    Ok(results.into_iter().next())
+
+    if let Some(cat) = results.into_iter().next() {
+        return Ok(Some(cat));
+    }
+
+    // No match odds found — query what market types exist for diagnostics
+    let filter = MarketFilter {
+        event_ids: Some(vec![event_id.to_string()]),
+        ..Default::default()
+    };
+    let types = client.list_market_types(&filter).await?;
+    if types.is_empty() {
+        println!("     (no markets at all for this event — likely finished or not yet available)");
+    } else {
+        let type_list: Vec<String> = types
+            .iter()
+            .map(|t| format!("{} ({})", t.market_type, t.market_count.unwrap_or(0)))
+            .collect();
+        println!("     Available market types: {}", type_list.join(", "));
+    }
+
+    Ok(None)
 }
 
 /// Get the selection ID for a runner position in a 3-way match odds market.
