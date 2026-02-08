@@ -6,6 +6,7 @@
 use std::path::PathBuf;
 
 use anyhow::{Context, Result};
+use chrono::Local;
 use clap::Parser;
 use tracing_subscriber::EnvFilter;
 
@@ -30,9 +31,9 @@ struct Cli {
     #[arg(long)]
     upcoming: bool,
 
-    /// Output JSON file path
-    #[arg(long, short, default_value = "matches.json")]
-    output: PathBuf,
+    /// Output JSON file path (default: matches_YYYYMMDD_HHMMSS.json)
+    #[arg(long, short)]
+    output: Option<PathBuf>,
 }
 
 #[tokio::main]
@@ -44,6 +45,10 @@ async fn main() -> Result<()> {
         .init();
 
     let cli = Cli::parse();
+    let output = cli.output.unwrap_or_else(|| {
+        let ts = Local::now().format("%Y%m%d_%H%M%S");
+        PathBuf::from(format!("matches_{ts}.json"))
+    });
 
     eprintln!("Scraping predictions from {}...", cli.url);
     let mut matches = scraper::scrape_predictions(&cli.url)
@@ -59,9 +64,9 @@ async fn main() -> Result<()> {
     let json = serde_json::to_string_pretty(&matches)
         .context("Failed to serialize matches to JSON")?;
 
-    std::fs::write(&cli.output, &json)
-        .with_context(|| format!("Failed to write {}", cli.output.display()))?;
+    std::fs::write(&output, &json)
+        .with_context(|| format!("Failed to write {}", output.display()))?;
 
-    eprintln!("Saved to {}", cli.output.display());
+    eprintln!("Saved to {}", output.display());
     Ok(())
 }

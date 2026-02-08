@@ -17,6 +17,10 @@ path = "src/bin/bpipe_ws.rs"
 name = "bpipe-scrape"
 path = "src/bin/bpipe_scrape.rs"
 
+[[bin]]
+name = "bpipe-bet"
+path = "src/bin/bpipe_bet.rs"
+
 [dependencies]
 # Async runtime
 tokio = { version = "1", features = ["full"] }

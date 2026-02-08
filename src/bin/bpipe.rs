@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use anyhow::{Context, Result};
+use chrono::Local;
 use clap::{Parser, Subcommand};
 use tracing_subscriber::EnvFilter;
 
@@ -159,9 +160,9 @@ enum Command {
         #[arg(long)]
         upcoming: bool,
 
-        /// Output file for the matched table
-        #[arg(long, short, default_value = "matched.txt")]
-        output: PathBuf,
+        /// Output file for the matched table (default: matched_YYYYMMDD_HHMMSS.txt)
+        #[arg(long, short)]
+        output: Option<PathBuf>,
     },
 }
 
@@ -216,7 +217,13 @@ async fn main() -> Result<()> {
             cmd_stream(&session, &config, markets, orders).await?
         }
         Command::Scrape { url, upcoming } => cmd_scrape(&client, &url, upcoming).await?,
-        Command::MatchEvents { input, upcoming, output } => cmd_match_events(&client, &input, upcoming, &output).await?,
+        Command::MatchEvents { input, upcoming, output } => {
+            let output = output.unwrap_or_else(|| {
+                let ts = Local::now().format("%Y%m%d_%H%M%S");
+                PathBuf::from(format!("matched_{ts}.txt"))
+            });
+            cmd_match_events(&client, &input, upcoming, &output).await?
+        }
     }
 
     Ok(())
@@ -828,9 +835,10 @@ async fn cmd_scrape(client: &BetfairClient, url: &str, upcoming_only: bool) -> R
 
 /// Find a Betfair event matching the given home and away team names.
 ///
-/// Uses fuzzy matching: normalizes both statarea team names and Betfair event names
-/// to lowercase, strips common suffixes like "(w)", "FC", "CF", etc.,
-/// then checks if both teams appear in the Betfair event name.
+/// Uses multi-pass fuzzy matching with token-based scoring:
+/// 1. Exact substring match after normalization
+/// 2. Token overlap scoring (best match above threshold wins)
+/// 3. Alias expansion for known team name variants
 fn find_betfair_event<'a>(
     events: &'a [EventResult],
     home: &str,
@@ -839,45 +847,407 @@ fn find_betfair_event<'a>(
     let home_norm = normalize_team(home);
     let away_norm = normalize_team(away);
 
-    // First: exact substring match (both teams in event name)
+    // Pass 1: exact substring match (both normalized teams in event name)
     for ev in events {
-        let ev_name = ev.event.name.to_lowercase();
+        let ev_name = normalize_team(&ev.event.name);
         if ev_name.contains(&home_norm) && ev_name.contains(&away_norm) {
             return Some(ev);
         }
     }
 
-    // Second pass: try matching with just the first word of each team name
-    // (e.g., "Vikingur Reykjavik" might be "Vikingur" on Betfair)
-    let home_short = home_norm.split_whitespace().next().unwrap_or(&home_norm);
-    let away_short = away_norm.split_whitespace().next().unwrap_or(&away_norm);
+    // Pass 2: alias-expanded substring match
+    let home_aliases = team_aliases(&home_norm);
+    let away_aliases = team_aliases(&away_norm);
+    for ev in events {
+        let ev_name = normalize_team(&ev.event.name);
+        let home_ok = home_aliases.iter().any(|a| ev_name.contains(a.as_str()));
+        let away_ok = away_aliases.iter().any(|a| ev_name.contains(a.as_str()));
+        if home_ok && away_ok {
+            return Some(ev);
+        }
+    }
 
-    // Only try short match if the short names are ≥3 chars to avoid false positives
-    if home_short.len() >= 3 && away_short.len() >= 3 {
-        for ev in events {
-            let ev_name = ev.event.name.to_lowercase();
-            if ev_name.contains(home_short) && ev_name.contains(away_short) {
-                return Some(ev);
+    // Pass 3: token-based scoring — find best match above threshold
+    let home_tokens = tokenize(&home_norm);
+    let away_tokens = tokenize(&away_norm);
+    let home_alias_tokens: Vec<Vec<String>> = home_aliases.iter().map(|a| tokenize(a)).collect();
+    let away_alias_tokens: Vec<Vec<String>> = away_aliases.iter().map(|a| tokenize(a)).collect();
+
+    let mut best: Option<(f64, &'a EventResult)> = None;
+
+    for ev in events {
+        let ev_name = normalize_team(&ev.event.name);
+        // Betfair event names are typically "Team A v Team B"
+        let ev_parts: Vec<&str> = ev_name.splitn(2, " v ").collect();
+        if ev_parts.len() != 2 {
+            continue;
+        }
+        let ev_home_tokens = tokenize(ev_parts[0]);
+        let ev_away_tokens = tokenize(ev_parts[1]);
+
+        // Score: best token overlap for home vs ev_home + away vs ev_away
+        let home_score = best_token_score(&home_tokens, &home_alias_tokens, &ev_home_tokens);
+        let away_score = best_token_score(&away_tokens, &away_alias_tokens, &ev_away_tokens);
+
+        // Also try swapped order (statarea order might differ from Betfair)
+        let home_score_swap = best_token_score(&home_tokens, &home_alias_tokens, &ev_away_tokens);
+        let away_score_swap = best_token_score(&away_tokens, &away_alias_tokens, &ev_home_tokens);
+
+        let score = (home_score * away_score).max(home_score_swap * away_score_swap);
+
+        // Threshold: both teams must have ≥0.5 individual and combined ≥0.36
+        let (ind_home, ind_away) = if home_score * away_score >= home_score_swap * away_score_swap {
+            (home_score, away_score)
+        } else {
+            (home_score_swap, away_score_swap)
+        };
+
+        if ind_home >= 0.5 && ind_away >= 0.5 && score > best.map_or(0.0, |(s, _)| s) {
+            best = Some((score, ev));
+        }
+    }
+
+    best.map(|(_, ev)| ev)
+}
+
+/// Compute the best token overlap score between a team name (+ aliases) and an event side.
+fn best_token_score(tokens: &[String], alias_token_sets: &[Vec<String>], ev_tokens: &[String]) -> f64 {
+    let mut best = token_overlap(tokens, ev_tokens);
+    for alias_tokens in alias_token_sets {
+        best = best.max(token_overlap(alias_tokens, ev_tokens));
+    }
+    best
+}
+
+/// Token overlap score: |intersection| / max(|a|, |b|).
+/// For single-token teams, also consider substring matching.
+fn token_overlap(a: &[String], b: &[String]) -> f64 {
+    if a.is_empty() || b.is_empty() {
+        return 0.0;
+    }
+
+    // Exact token intersection
+    let intersection = a.iter().filter(|t| b.contains(t)).count();
+
+    // For remaining unmatched tokens, check substring containment (≥4 chars)
+    let mut substr_matches = 0.0;
+    for ta in a.iter() {
+        if b.contains(ta) {
+            continue; // Already counted
+        }
+        if ta.len() >= 4 {
+            for tb in b.iter() {
+                if tb.len() >= 4 && (tb.contains(ta.as_str()) || ta.contains(tb.as_str())) {
+                    substr_matches += 0.8; // Partial credit for substring match
+                    break;
+                }
             }
         }
     }
 
-    None
+    let score = (intersection as f64 + substr_matches) / a.len().max(b.len()) as f64;
+    score.min(1.0)
 }
+
+/// Tokenize a normalized name into meaningful words, filtering noise words.
+fn tokenize(name: &str) -> Vec<String> {
+    name.split_whitespace()
+        .filter(|w| w.len() >= 2) // Drop single-char tokens
+        .filter(|w| !NOISE_WORDS.contains(w))
+        .map(|w| w.to_string())
+        .collect()
+}
+
+const NOISE_WORDS: &[&str] = &[
+    "de", "da", "do", "dos", "du", "la", "le", "les", "el", "al", "di", "del",
+    "van", "von", "st", "saint", "san", "the",
+];
 
 /// Normalize a team name for fuzzy matching.
 fn normalize_team(name: &str) -> String {
     let s = name.to_lowercase();
-    // Remove common suffixes/markers
+
+    // Remove content in parentheses: (W), (R), etc.
     let s = s
         .replace("(w)", "")
+        .replace("(r)", "")
+        .replace("(n)", "");
+
+    // Remove common club type suffixes and prefixes
+    let stripped: String = s
+        // Suffixes
         .replace(" fc", "")
         .replace(" cf", "")
         .replace(" sc", "")
         .replace(" ec", "")
         .replace(" ac", "")
-        .replace(" afc", "");
-    s.trim().to_string()
+        .replace(" afc", "")
+        .replace(" fk", "")
+        .replace(" bk", "")
+        .replace(" sk", "")
+        .replace(" if", "")
+        .replace(" ff", "")
+        .replace(" ik", "")
+        .replace(" pk", "")
+        .replace(" cd", "")
+        .replace(" ca", "")
+        .replace(" cs", "")
+        .replace(" as", "")
+        .replace(" us", "")
+        .replace(" ss", "")
+        .replace(" ssd", "")
+        .replace(" gf", "")
+        .replace(" rj", "")
+        .replace(" mg", "")
+        .replace(" sp", "")
+        .replace(" se", "")
+        .replace(" rs", "");
+
+    // Remove leading prefixes (e.g., "FC Basel", "NK Dinamo Zagreb", "SC Braga")
+    let stripped = strip_leading_prefix(&stripped);
+
+    // Remove dots and extra punctuation
+    let stripped = stripped
+        .replace('.', " ")
+        .replace('-', " ")
+        .replace('\'', "")
+        .replace('/', " ");
+
+    // Collapse multiple spaces
+    stripped.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// Strip leading club-type prefixes like "FC", "NK", "SC", "KV", etc.
+fn strip_leading_prefix(name: &str) -> String {
+    let prefixes = [
+        "fc ", "fk ", "nk ", "sc ", "sk ", "kv ", "sv ", "bv ", "vfb ", "vfl ",
+        "tsv ", "bsc ", "fsv ", "ssv ", "msv ", "tsg ", "rb ", "rcd ",
+        "cd ", "ca ", "cs ", "cf ", "as ", "us ", "ss ", "aek ", "rc ", "rsc ",
+        "gd ", "gf ", "ud ", "uc ",
+    ];
+    let trimmed = name.trim();
+    for pfx in &prefixes {
+        if trimmed.starts_with(pfx) {
+            let rest = trimmed[pfx.len()..].trim();
+            if rest.len() >= 3 {
+                return rest.to_string();
+            }
+        }
+    }
+    trimmed.to_string()
+}
+
+/// Return a list of known aliases for a (normalized) team name.
+/// Includes the original name plus any known variants.
+fn team_aliases(normalized: &str) -> Vec<String> {
+    let mut aliases = vec![normalized.to_string()];
+
+    // Well-known name aliases (statarea name → betfair variants and vice versa)
+    let alias_map: &[&[&str]] = &[
+        &["inter", "inter milan", "internazionale"],
+        &["ac milan", "milan"],
+        &["betis", "real betis"],
+        &["atletico madrid", "atl madrid", "atletico"],
+        &["atletico mineiro", "atl mineiro"],
+        &["atletico goianiense", "atl goianiense"],
+        &["atletico tucuman", "atl tucuman"],
+        &["atletico nacional", "atl nacional"],
+        &["paris saint germain", "psg", "paris sg", "paris st germain"],
+        &["bayern munich", "bayern munchen", "bayern"],
+        &["1899 hoffenheim", "hoffenheim", "tsg hoffenheim"],
+        &["bayer leverkusen", "leverkusen"],
+        &["borussia dortmund", "dortmund", "bvb"],
+        &["borussia monchengladbach", "monchengladbach", "gladbach", "bmg"],
+        &["hertha berlin", "hertha"],
+        &["eintracht frankfurt", "frankfurt", "ein frankfurt"],
+        &["schalke 04", "schalke"],
+        &["werder bremen", "bremen"],
+        &["vfb stuttgart", "stuttgart"],
+        &["1 fsv mainz 05", "mainz", "mainz 05"],
+        &["union berlin", "union"],
+        &["arminia bielefeld", "bielefeld"],
+        &["fortuna dusseldorf", "dusseldorf"],
+        &["eintracht braunschweig", "braunschweig"],
+        &["karlsruher", "karlsruhe"],
+        &["koln", "cologne", "fc koln"],
+        &["rb leipzig", "leipzig", "rasenballsport leipzig"],
+        &["sporting lisbon", "sporting", "sporting cp", "sporting clube de portugal"],
+        &["benfica", "sl benfica"],
+        &["porto", "fc porto"],
+        &["braga", "sc braga", "sporting braga"],
+        &["deportivo alaves", "alaves"],
+        &["deportivo la coruna", "deportivo"],
+        &["celta vigo", "celta"],
+        &["real sociedad", "sociedad"],
+        &["athletic club", "athletic bilbao", "ath bilbao"],
+        &["wolverhampton", "wolves", "wolverhampton wanderers"],
+        &["tottenham", "tottenham hotspur", "spurs"],
+        &["newcastle", "newcastle united", "newcastle utd"],
+        &["manchester united", "man united", "man utd"],
+        &["manchester city", "man city"],
+        &["west ham", "west ham united", "west ham utd"],
+        &["sheffield united", "sheffield utd", "sheff utd"],
+        &["sheffield wednesday", "sheffield wed", "sheff wed"],
+        &["nottingham forest", "nottm forest", "nott forest"],
+        &["leicester", "leicester city"],
+        &["aston villa", "villa"],
+        &["crystal palace", "c palace"],
+        &["queens park rangers", "qpr"],
+        &["olympiakos piraeus", "olympiakos", "olympiacos"],
+        &["aris thessalonikis", "aris thessaloniki", "aris"],
+        &["panathinaikos", "panathinaikos athens"],
+        &["paok", "paok thessaloniki", "paok salonika"],
+        &["aek athens", "aek"],
+        &["dinamo zagreb", "nk dinamo zagreb"],
+        &["hajduk split", "hajduk"],
+        &["rijeka", "hnk rijeka"],
+        &["osijek", "nk osijek"],
+        &["varazdin", "nk varazdin"],
+        &["red star belgrade", "crvena zvezda", "red star"],
+        &["partizan belgrade", "partizan"],
+        &["galatasaray", "galatasaray sk"],
+        &["fenerbahce", "fenerbahce sk"],
+        &["besiktas", "besiktas jk"],
+        &["basaksehir", "istanbul basaksehir"],
+        &["eyupspor", "eyup"],
+        &["midtjylland", "fc midtjylland"],
+        &["copenhagen", "fc copenhagen", "kobenhavn"],
+        &["odense", "odense bk", "ob"],
+        &["agf", "agf aarhus", "aarhus"],
+        &["basel", "fc basel", "fc basel 1893"],
+        &["zurich", "fc zurich"],
+        &["servette", "servette fc"],
+        &["lausanne", "fc lausanne sport", "fc lausanne"],
+        &["st gallen", "fc st gallen"],
+        &["thun", "fc thun"],
+        &["viktoria plzen", "plzen", "viktoria"],
+        &["slovan liberec", "liberec"],
+        &["sparta praha", "sparta prague"],
+        &["slavia praha", "slavia prague"],
+        &["olympique lyonnais", "lyon", "ol"],
+        &["olympique marseille", "marseille", "om"],
+        &["as monaco", "monaco"],
+        &["as saint etienne", "saint etienne", "st etienne"],
+        &["losc lille", "lille"],
+        &["stade rennais", "rennes"],
+        &["montpellier hsc", "montpellier"],
+        &["rc strasbourg", "strasbourg"],
+        &["stade brestois", "brest"],
+        &["girondins bordeaux", "bordeaux"],
+        &["ogc nice", "nice"],
+        &["angers sco", "angers"],
+        &["fc nantes", "nantes"],
+        &["fc toulouse", "toulouse"],
+        &["ajaccio", "ac ajaccio", "gazelec ajaccio"],
+        &["le havre", "le havre ac"],
+        &["paris fc", "paris"],
+        &["auxerre", "aj auxerre"],
+        &["club america", "america"],
+        &["u n a m pumas", "pumas unam", "pumas"],
+        &["queretaro", "queretaro fc"],
+        &["fc juarez", "juarez"],
+        &["union st gilloise", "union sg", "royale union saint gilloise"],
+        &["kv mechelen", "mechelen"],
+        &["antwerp", "royal antwerp"],
+        &["la louviere", "louviere"],
+        &["club africain", "club africain tunis"],
+        &["sfaxien", "cs sfaxien"],
+        &["bizertin", "ca bizertin"],
+        &["vasco da gama", "vasco"],
+        &["botafogo", "botafogo rj"],
+        &["sampaio correa", "sampaio correa rj"],
+        &["america mineiro", "america mg"],
+        &["bohemians", "bohemian fc", "bohemians dublin"],
+        &["st patricks athletic", "st patricks", "st pats"],
+        &["olimpija ljubljana", "olimpija"],
+        &["celje", "nk celje"],
+        &["mura", "ns mura"],
+        &["maribor", "nk maribor"],
+        &["koper", "fc koper"],
+        &["river plate", "river"],
+        &["newells old boys", "newells"],
+        &["defensa y justicia", "defensa"],
+        &["belgrano cordoba", "belgrano"],
+        &["sarmiento junin", "sarmiento"],
+        &["olimpia", "cd olimpia"],
+        &["lobos upnfm", "lobos"],
+        &["apoel", "apoel nicosia"],
+        &["fortaleza", "fortaleza fc", "fortaleza ce"],
+        &["america de cali", "america cali"],
+        &["santa fe", "ind santa fe", "independiente santa fe"],
+        &["junior", "junior barranquilla", "atletico junior"],
+        &["chico", "boyaca chico"],
+        &["altach", "scr altach", "rheindorf altach"],
+        &["bw linz", "fc bw linz", "blau weiss linz"],
+        &["botosani", "fc botosani"],
+        &["metaloglobus", "metaloglobus bucharest"],
+        &["malaga", "malaga cf"],
+        &["cultural leonesa", "cultural"],
+        &["esperance", "esperance st", "esperance tunis", "esperance sportive de tunis"],
+        &["stade malien", "stade malien bamako"],
+        &["pachuca", "cf pachuca"],
+        &["toluca", "deportivo toluca"],
+        &["club guarani", "guarani"],
+        &["libertad", "club libertad"],
+        &["monterrey", "cf monterrey"],
+        &["huachipato", "cd huachipato"],
+        &["u de chile", "universidad de chile"],
+        &["cruz azul", "cd cruz azul"],
+        &["panserraikos", "panserraikos fc"],
+        &["ofi", "ofi crete"],
+        &["levadiakos", "levadiakos fc"],
+        &["como", "como 1907"],
+    ];
+
+    for group in alias_map {
+        let group_lower: Vec<String> = group.iter().map(|s| s.to_string()).collect();
+        if group_lower.iter().any(|a| a == normalized) {
+            for a in &group_lower {
+                if a != normalized {
+                    aliases.push(a.clone());
+                }
+            }
+            break;
+        }
+        // Also check if the normalized name *contains* any alias or vice versa
+        for a in &group_lower {
+            if normalized.contains(a.as_str()) || a.contains(normalized) {
+                for other in &group_lower {
+                    if !aliases.contains(other) {
+                        aliases.push(other.clone());
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    // Generate short-name variant: first meaningful word if ≥4 chars
+    let words: Vec<&str> = normalized.split_whitespace().collect();
+    if words.len() > 1 {
+        // Significant first word (skip noise/generic prefixes)
+        for w in &words {
+            if w.len() >= 4 && !NOISE_WORDS.contains(w) {
+                let short = w.to_string();
+                if !aliases.contains(&short) {
+                    aliases.push(short);
+                }
+                break;
+            }
+        }
+        // Also try last significant word
+        for w in words.iter().rev() {
+            if w.len() >= 4 && !NOISE_WORDS.contains(w) {
+                let short = w.to_string();
+                if !aliases.contains(&short) {
+                    aliases.push(short);
+                }
+                break;
+            }
+        }
+    }
+
+    aliases
 }
 
 // ─── Match Events command ───────────────────────────────

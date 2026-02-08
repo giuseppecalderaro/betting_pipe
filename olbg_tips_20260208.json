@@ -1,0 +1,765 @@
+[
+  {
+    "match": "Brighton v Crystal Palace",
+    "league": "England Premier League",
+    "kickoff": "2026-02-08 15:00",
+    "rankings": "Brighton (12) - Crystal Palace (15)",
+    "olbg_url": "https://www.olbg.com/betting-tips/Football/UK/England_Premier_League/Brighton_v_Crystal_Palace/1?event_id=1980032",
+    "bf_event_id": "35187310",
+    "tips": {
+      "full_time_result": {
+        "most_popular": "Brighton",
+        "selections": [
+          {
+            "selection": "Brighton",
+            "odds": 2.00,
+            "tips_ratio": "18/32",
+            "confidence": "56%",
+            "comments": 11,
+            "form": "D W D D L D"
+          },
+          {
+            "selection": "Draw",
+            "odds": 3.75,
+            "tips_ratio": "11/32",
+            "confidence": "34%",
+            "comments": 6
+          },
+          {
+            "selection": "Crystal Palace",
+            "odds": 3.90,
+            "tips_ratio": "3/32",
+            "confidence": "9%",
+            "form": "D L D L L D"
+          }
+        ]
+      },
+      "total_goals": {
+        "over_2_5": { "odds": 1.85, "tips_ratio": "1/2", "confidence": "50%" },
+        "under_2_5": { "odds": 2.00, "tips_ratio": "1/2", "confidence": "50%" }
+      },
+      "btts": {
+        "yes": { "odds": 1.73, "tips_ratio": "1/1", "confidence": "100%" },
+        "no": { "odds": 2.20, "tips_ratio": "0/1", "confidence": "0%" }
+      },
+      "result_and_btts": {
+        "brighton_and_yes": { "odds": 4.00, "tips_ratio": "2/2", "confidence": "100%" }
+      }
+    },
+    "best_tipster": {
+      "name": "Plasticninja",
+      "selection": "Brighton",
+      "odds": 2.00,
+      "comment": "Brighton have home advantage and will fancy their chances against a Palace side that look in disarray at the moment.",
+      "annual_strike_rate": "40%",
+      "7_day_profit": 66,
+      "30_day_profit": -41
+    },
+    "notable_comments": [
+      {
+        "tipster": "Paddyg",
+        "selection": "Draw",
+        "odds": 3.75,
+        "comment": "Crystal Palace can get a draw from today's game. Crystal Palace have been dragged into a relegation fight this Premier League season and need to start getting points. Brighton are a good team at home, so Crystal Palace might only get a draw from today's game at best.",
+        "annual_profit": 172,
+        "annual_strike_rate": "48%"
+      },
+      {
+        "tipster": "JiggsCasey",
+        "selection": "Brighton & Yes",
+        "odds": 4.00,
+        "comment": "Two teams that looked like top-third candidates for a while but have fallen by the wayside and are now fighting for mid-table. Brighton have scored in their last six league games and are unbeaten in their three most recent home games. Palace also score in most games and have scored in their last three games (one goal per game). They have three losses and a draw in their last four away games. Those statistics suggest a game in which both are likely to score, but Brighton are likely to get the better of it.",
+        "annual_profit": 24,
+        "annual_strike_rate": "36%"
+      },
+      {
+        "tipster": "hovi88",
+        "selection": "BTTS Yes",
+        "odds": 1.73,
+        "comment": "Brighton lost last season 2-1 and 3-1 against Crystal Palace. Right now they have four Premier League games in a row with both teams scoring, and also a cup game with both teams scoring. The visitors have four games in a row with BTS.",
+        "annual_strike_rate": "50%"
+      }
+    ]
+  },
+  {
+    "match": "Bologna v Parma",
+    "league": "Italy Serie A",
+    "kickoff": "2026-02-08 12:30",
+    "rankings": "Bologna (10) - Parma (16)",
+    "olbg_url": "https://www.olbg.com/betting-tips/Football/European_Competitions/Italy_Serie_A/Bologna_v_Parma/1",
+    "bf_event_id": "35188845",
+    "tips": {
+      "full_time_result": {
+        "most_popular": "Bologna",
+        "selections": [
+          {
+            "selection": "Bologna",
+            "odds": 1.67,
+            "tips_ratio": "6/8",
+            "confidence": "75%",
+            "comments": 2,
+            "form": "L D W L L L"
+          },
+          {
+            "selection": "Draw",
+            "odds": 3.90,
+            "tips_ratio": "1/8",
+            "confidence": "13%"
+          },
+          {
+            "selection": "Parma",
+            "odds": 5.50,
+            "tips_ratio": "1/8",
+            "confidence": "13%",
+            "form": "L W D D L L"
+          }
+        ]
+      },
+      "total_goals": {
+        "over_2_5": { "odds": 2.10, "tips_ratio": "1/1", "confidence": "100%" },
+        "under_2_5": { "odds": 1.80, "tips_ratio": "0/1", "confidence": "0%" }
+      },
+      "btts": {
+        "yes": { "odds": 2.00, "tips_ratio": "0/0" },
+        "no": { "odds": 1.85, "tips_ratio": "0/0" }
+      }
+    },
+    "best_tipster": {
+      "name": "edward56",
+      "selection": "Bologna",
+      "odds": 1.60,
+      "comment": "Bologna have won three of their last five Serie A matches against Parma. Parma have not won any of their last four matches in this competition. Bologna will win.",
+      "annual_strike_rate": "36%",
+      "7_day_profit": 82,
+      "30_day_profit": 18
+    },
+    "notable_comments": [
+      {
+        "tipster": "hovi88",
+        "selection": "Over 2.5",
+        "odds": 2.00,
+        "comment": "Two sides coming after big losses at home. Bologna lost this week 3-0 at home to AC Milan, while Parma was defeated 4-1 at home by Juventus. They met twice this season and both games were won by Bologna 2-1. I back over 2.5 goals.",
+        "annual_strike_rate": "50%"
+      }
+    ]
+  },
+  {
+    "match": "Lecce v Udinese",
+    "league": "Italy Serie A",
+    "kickoff": "2026-02-08 15:00",
+    "rankings": "Lecce (17) - Udinese (9)",
+    "olbg_url": "https://www.olbg.com/betting-tips/Football/European_Competitions/Italy_Serie_A/Lecce_v_Udinese/1",
+    "bf_event_id": "35188981",
+    "tips": {
+      "full_time_result": {
+        "most_popular": "Udinese",
+        "selections": [
+          {
+            "selection": "Udinese",
+            "odds": 2.60,
+            "tips_ratio": "5/9",
+            "confidence": "56%",
+            "comments": 2,
+            "form": "L W D L W W"
+          },
+          {
+            "selection": "Draw",
+            "odds": 2.90,
+            "tips_ratio": "4/9",
+            "confidence": "44%",
+            "comments": 1
+          },
+          {
+            "selection": "Lecce",
+            "odds": 3.20,
+            "tips_ratio": "0/9",
+            "confidence": "0%",
+            "form": "L L L L D L"
+          }
+        ]
+      },
+      "total_goals": {
+        "under_2_5": { "odds": 1.44 },
+        "over_2_5": { "odds": 3.00 }
+      },
+      "btts": {
+        "yes": { "odds": 2.25, "tips_ratio": "1/1", "confidence": "100%" },
+        "no": { "odds": 1.67, "tips_ratio": "0/1", "confidence": "0%" }
+      }
+    },
+    "best_tipster": {
+      "name": "edward56",
+      "selection": "Udinese",
+      "odds": 2.60,
+      "comment": "Udinese have won four of their last five Serie A matches against Lecce. They have won their last two matches in this competition. They will take all three points.",
+      "annual_strike_rate": "36%",
+      "7_day_profit": 82,
+      "30_day_profit": 18
+    },
+    "notable_comments": [
+      {
+        "tipster": "RACHACE",
+        "selection": "Draw",
+        "odds": 3.00,
+        "comment": "Lecce are now 8 without a win in Serie A, so they're obviously a very risky bet here. However, the last 10 away games for Udinese have seen them lose 6, win 3, and draw 1, so they're also a risky bet in my opinion. A draw looks a safer bet here.",
+        "annual_strike_rate": "33%"
+      }
+    ]
+  },
+  {
+    "match": "Sassuolo v Inter Milan",
+    "league": "Italy Serie A",
+    "kickoff": "2026-02-08 18:00",
+    "rankings": "Sassuolo (11) - Inter Milan (1)",
+    "olbg_url": "https://www.olbg.com/betting-tips/Football/European_Competitions/Italy_Serie_A/Sassuolo_v_Inter_Milan/1?event_id=1980198",
+    "bf_event_id": "35188983",
+    "tips": {
+      "full_time_result": {
+        "most_popular": "Inter Milan",
+        "selections": [
+          {
+            "selection": "Inter Milan",
+            "odds": 1.48,
+            "tips_ratio": "12/12",
+            "confidence": "100%",
+            "comments": 4,
+            "form": "W D W W W W"
+          },
+          {
+            "selection": "Draw",
+            "odds": 4.50,
+            "tips_ratio": "0/12",
+            "confidence": "0%"
+          },
+          {
+            "selection": "Sassuolo",
+            "odds": 7.50,
+            "tips_ratio": "0/12",
+            "confidence": "0%",
+            "form": "D L L L W W"
+          }
+        ]
+      },
+      "total_goals": {
+        "over_2_5": { "odds": 1.80 },
+        "under_2_5": { "odds": 2.10 }
+      },
+      "btts": {
+        "yes": { "odds": 2.00 },
+        "no": { "odds": 1.85 }
+      }
+    },
+    "best_tipster": {
+      "name": "nasko27",
+      "selection": "Inter Milan",
+      "odds": 1.50,
+      "comment": "In the next round of Italy Serie A, Sassuolo will play Inter Milan. The home team (11th) has a 2-1-3 record in the last matches. The away team (1st) has a 5-0-1 record in the last matches. My prediction for this match is a win for Inter Milan.",
+      "annual_profit": 95,
+      "annual_strike_rate": "77%",
+      "7_day_profit": 17,
+      "30_day_profit": 95
+    }
+  },
+  {
+    "match": "Juventus v Lazio",
+    "league": "Italy Serie A",
+    "kickoff": "2026-02-08 20:45",
+    "rankings": "Juventus (4) - Lazio (8)",
+    "olbg_url": "https://www.olbg.com/betting-tips/Football/European_Competitions/Italy_Serie_A/Juventus_v_Lazio/1?event_id=1980199",
+    "bf_event_id": "35188980",
+    "tips": {
+      "full_time_result": {
+        "most_popular": "Juventus",
+        "selections": [
+          {
+            "selection": "Juventus",
+            "odds": 1.48,
+            "tips_ratio": "10/10",
+            "confidence": "100%",
+            "comments": 5,
+            "form": "D W W L W W"
+          },
+          {
+            "selection": "Draw",
+            "odds": 4.33,
+            "tips_ratio": "0/10",
+            "confidence": "0%"
+          },
+          {
+            "selection": "Lazio",
+            "odds": 8.00,
+            "tips_ratio": "0/10",
+            "confidence": "0%",
+            "form": "L D W L D W"
+          }
+        ]
+      },
+      "total_goals": {
+        "under_2_5": { "odds": 1.75 },
+        "over_2_5": { "odds": 2.10 }
+      },
+      "btts": {
+        "yes": { "odds": 2.40, "tips_ratio": "1/1", "confidence": "100%" },
+        "no": { "odds": 1.64, "tips_ratio": "0/1", "confidence": "0%" }
+      }
+    },
+    "best_tipster": {
+      "name": "edward56",
+      "selection": "Juventus",
+      "odds": 1.53,
+      "comment": "Juventus have won five of their last six Serie A home games against Lazio. They have won four of their last five games in this competition. They should take all three points.",
+      "annual_strike_rate": "36%",
+      "7_day_profit": 82,
+      "30_day_profit": 18
+    },
+    "notable_comments": [
+      {
+        "tipster": "Delboy980",
+        "selection": "BTTS Yes",
+        "odds": 2.38,
+        "comment": "Lazio has won 8, drawn 8, and lost 7 of their 23 league games played. They sit 8th in the Italian Serie A with 32 points, winning their last league game 3-2 at home against Genoa. Lazio has scored 24 goals and conceded 21 goals in their 23 league games played. Juventus has won 13, drawn 6, and lost 4 of their 23 league games played. They sit 4th in the Italian Serie A with 45 points, winning their last league game 4-1 away against Parma. Juventus has scored 39 goals and conceded 18 goals in their 23 league games played. In the last 5 head-to-heads it is 2 wins apiece and 1 draw, with Lazio winning the last meeting 1-0 at home in the league this season. I am taking this match to have over 2.5 goals scored in this game tonight.",
+        "annual_strike_rate": "57%",
+        "annual_profit": -94
+      }
+    ]
+  },
+  {
+    "match": "Nice v Monaco",
+    "league": "France Ligue 1",
+    "kickoff": "2026-02-08 15:00",
+    "rankings": "Nice (13) - Monaco (10)",
+    "olbg_url": "https://www.olbg.com/betting-tips/Football/European_Competitions/France_Ligue_1/Nice_v_Monaco/1",
+    "bf_event_id": "35189203",
+    "tips": {
+      "full_time_result": {
+        "most_popular": "Monaco",
+        "selections": [
+          {
+            "selection": "Monaco",
+            "odds": 2.15,
+            "tips_ratio": "2/4",
+            "confidence": "50%",
+            "form": "L L L L D W"
+          },
+          {
+            "selection": "Nice",
+            "odds": 3.30,
+            "tips_ratio": "2/4",
+            "confidence": "50%",
+            "form": "L L D L W D"
+          },
+          {
+            "selection": "Draw",
+            "odds": 4.00,
+            "tips_ratio": "0/4",
+            "confidence": "0%"
+          }
+        ]
+      },
+      "total_goals": {
+        "over_2_5": { "odds": 1.52, "tips_ratio": "2/2", "confidence": "100%" },
+        "under_2_5": { "odds": 2.63, "tips_ratio": "0/2", "confidence": "0%" }
+      },
+      "btts": {
+        "yes": { "odds": 1.48 },
+        "no": { "odds": 2.70 }
+      },
+      "result_and_btts": {
+        "monaco_and_yes": { "odds": 3.25, "tips_ratio": "1/1", "confidence": "100%" }
+      }
+    },
+    "best_tipster": {
+      "name": "fetty666",
+      "selection": "Monaco",
+      "odds": 2.15,
+      "comment": "Monaco has failed to win in its last three away matches. However, it has a chance to bounce back today because it has won two of its last three away matches against Nice.",
+      "annual_strike_rate": "36%"
+    },
+    "notable_comments": [
+      {
+        "tipster": "fetty666",
+        "selection": "Over 2.5",
+        "odds": 1.52,
+        "comment": "In four of Monaco's last five away games, there were more than 2.5 goals. This also happened in three of their last four away matches against Nice."
+      },
+      {
+        "tipster": "fetty666",
+        "selection": "Monaco & Yes",
+        "odds": 3.25,
+        "comment": "Monaco might put on a good performance this week. Their only two away wins have been very attacking matches, with scores of 5-3 and 2-1."
+      }
+    ]
+  },
+  {
+    "match": "Le Havre v Strasbourg",
+    "league": "France Ligue 1",
+    "kickoff": "2026-02-08 17:15",
+    "rankings": "Le Havre (15) - Strasbourg (7)",
+    "olbg_url": "https://www.olbg.com/betting-tips/Football/European_Competitions/France_Ligue_1/Le_Havre_v_Strasbourg/1",
+    "bf_event_id": "35189212",
+    "tips": {
+      "full_time_result": {
+        "most_popular": "Strasbourg",
+        "selections": [
+          {
+            "selection": "Strasbourg",
+            "odds": 1.91,
+            "tips_ratio": "3/3",
+            "confidence": "100%",
+            "comments": 1,
+            "form": "L D D W W L"
+          },
+          {
+            "selection": "Draw",
+            "odds": 3.60,
+            "tips_ratio": "0/3",
+            "confidence": "0%"
+          },
+          {
+            "selection": "Le Havre",
+            "odds": 4.00,
+            "tips_ratio": "0/3",
+            "confidence": "0%",
+            "form": "D L W D D L"
+          }
+        ]
+      },
+      "total_goals": {
+        "over_2_5": { "odds": 1.91, "tips_ratio": "1/1", "confidence": "100%" },
+        "under_2_5": { "odds": 1.91, "tips_ratio": "0/1", "confidence": "0%" }
+      },
+      "btts": {
+        "yes": { "odds": 1.80 },
+        "no": { "odds": 2.00 }
+      }
+    },
+    "best_tipster": {
+      "name": "StuartyBoy94",
+      "selection": "Strasbourg",
+      "odds": 1.91,
+      "comment": "Gary O'Neil has made a great start to life in France, only losing to PSG. Strasbourg come into this off the back of a 3-1 win at home to Monaco. Strasbourg won here in Le Havre last time out, 3-0.",
+      "annual_strike_rate": "41%"
+    },
+    "notable_comments": [
+      {
+        "tipster": "hovi88",
+        "selection": "Over 2.5",
+        "odds": 1.91,
+        "comment": "Strasbourg wants a top finish once more this season. They did lose last round in Ligue 1, 2-1 at home to PSG. However, they got a big win in the cup this week, hosting Monaco and winning 3-1. I back over 2.5 goals.",
+        "annual_strike_rate": "50%"
+      }
+    ]
+  },
+  {
+    "match": "PSG v Marseille",
+    "league": "France Ligue 1",
+    "kickoff": "2026-02-08 20:45",
+    "rankings": "PSG (2) - Marseille (4)",
+    "olbg_url": "https://www.olbg.com/betting-tips/Football/European_Competitions/France_Ligue_1/PSG_v_Marseille/1",
+    "bf_event_id": "35189215",
+    "tips": {
+      "full_time_result": {
+        "most_popular": "PSG",
+        "selections": [
+          {
+            "selection": "PSG",
+            "odds": 1.44,
+            "tips_ratio": "8/8",
+            "confidence": "100%",
+            "comments": 4,
+            "form": "W W W W W W"
+          },
+          {
+            "selection": "Draw",
+            "odds": 5.25,
+            "tips_ratio": "0/8",
+            "confidence": "0%"
+          },
+          {
+            "selection": "Marseille",
+            "odds": 6.50,
+            "tips_ratio": "0/8",
+            "confidence": "0%",
+            "form": "W W L W L D"
+          }
+        ]
+      },
+      "total_goals": {
+        "over_2_5": { "odds": 1.45, "tips_ratio": "2/2", "confidence": "100%" },
+        "under_2_5": { "odds": 2.85, "tips_ratio": "0/2", "confidence": "0%" }
+      },
+      "btts": {
+        "yes": { "odds": 1.67, "tips_ratio": "3/3", "confidence": "100%" },
+        "no": { "odds": 2.30, "tips_ratio": "0/3", "confidence": "0%" }
+      },
+      "result_and_btts": {
+        "psg_and_yes": { "odds": 2.62, "tips_ratio": "4/4", "confidence": "100%" }
+      }
+    },
+    "best_tipster": {
+      "name": "donkosauraus",
+      "selection": "PSG",
+      "odds": 1.44,
+      "comment": "PSG have been underperforming recently relative to their overall season. They are still battling for the league, so motivation will be high.",
+      "annual_strike_rate": "42%"
+    },
+    "notable_comments": [
+      {
+        "tipster": "Sandstorm2210",
+        "selection": "Over 2.5",
+        "odds": 1.45,
+        "comment": "PSG are extremely strong at home and consistently create a high volume of chances, often scoring two or more goals on their own at the Parc des Princes. Marseille also carry significant attacking threat and are capable of contributing on the scoresheet, especially in high-intensity derby matches. Recent head-to-head meetings between these sides have produced open games with chances at both ends. Combined with the importance of the match and the attacking quality on the pitch, this strongly points toward over 2.5 goals.",
+        "annual_strike_rate": "60%"
+      },
+      {
+        "tipster": "geddes",
+        "selection": "BTTS Yes",
+        "odds": 1.62,
+        "comment": "Two of the top teams in France. Both teams have quality in the attacking positions. Both sides will create chances on goal throughout this match, and with the calibre of players they both have, I expect both teams to put the ball in the back of the net.",
+        "annual_strike_rate": "57%"
+      },
+      {
+        "tipster": "StuartyBoy94",
+        "selection": "PSG & Yes",
+        "odds": 2.62,
+        "comment": "It's hard to back anything other than a PSG win at home, but we know Marseille will come here attacking. A win for PSG will move them to the top of the table again. The last home fixture for PSG against Marseille saw them win 3-1.",
+        "annual_strike_rate": "41%"
+      }
+    ]
+  },
+  {
+    "match": "FC Koln v RB Leipzig",
+    "league": "Germany Bundesliga I",
+    "kickoff": "2026-02-08 15:30",
+    "rankings": "Cologne (-) - RB Leipzig (5)",
+    "olbg_url": "https://www.olbg.com/betting-tips/Football/European_Competitions/Germany_Bundesliga_I/Cologne_v_RB_Leipzig/1?event_id=1980235",
+    "bf_event_id": "35191410",
+    "tips": {
+      "full_time_result": {
+        "most_popular": "RB Leipzig",
+        "selections": [
+          {
+            "selection": "RB Leipzig",
+            "odds": 2.05,
+            "tips_ratio": "3/5",
+            "confidence": "60%",
+            "comments": 2,
+            "form": "W L L W D L"
+          },
+          {
+            "selection": "Cologne",
+            "odds": 3.40,
+            "tips_ratio": "1/5",
+            "confidence": "20%",
+            "comments": 1,
+            "form": "D L L L L L"
+          },
+          {
+            "selection": "Draw",
+            "odds": 4.00,
+            "tips_ratio": "1/5",
+            "confidence": "20%"
+          }
+        ]
+      },
+      "total_goals": {
+        "over_2_5": { "odds": 1.50, "tips_ratio": "2/2", "confidence": "100%" },
+        "under_2_5": { "odds": 2.75, "tips_ratio": "0/2", "confidence": "0%" }
+      },
+      "btts": {
+        "yes": { "odds": 1.45, "tips_ratio": "1/1", "confidence": "100%" },
+        "no": { "odds": 2.75, "tips_ratio": "0/1", "confidence": "0%" }
+      },
+      "result_and_btts": {
+        "rb_leipzig_and_yes": { "odds": 3.20, "tips_ratio": "1/2", "confidence": "50%" },
+        "cologne_and_yes": { "odds": 5.50, "tips_ratio": "1/2", "confidence": "50%" }
+      }
+    },
+    "best_tipster": {
+      "name": "Bald Eagle 2",
+      "selection": "RB Leipzig",
+      "odds": 2.05,
+      "comment": "Leipzig have the stronger squad and better overall form. Cologne struggle against top-half teams, making the away win appealing at near even odds.",
+      "annual_profit": 23,
+      "annual_strike_rate": "100%",
+      "7_day_profit": 23,
+      "30_day_profit": 23
+    },
+    "notable_comments": [
+      {
+        "tipster": "lancen",
+        "selection": "Cologne",
+        "odds": 3.25,
+        "comment": "The hosts are impressive and they won the last 2 matches back to back at their own turf. They won vs Mainz, who beat Leipzig last time, and should be able to win here at home.",
+        "annual_profit": 999,
+        "annual_strike_rate": "36%",
+        "30_day_profit": 635
+      },
+      {
+        "tipster": "rockabilly kat",
+        "selection": "Draw",
+        "odds": 4.00,
+        "comment": "I fancy this will be a close match. Both teams have picked up seven points in their last five league games. Both have lost two matches in that run. Leipzig have scored 8 and conceded 8 in those five matches, and Cologne have scored seven and conceded eight. I have to back the draw.",
+        "annual_strike_rate": "31%"
+      },
+      {
+        "tipster": "nasko27",
+        "selection": "Over 2.5",
+        "odds": 1.50,
+        "comment": "The home team have 4 of 6 matches with over 2.5 goals in recent games. The away team also have 4 of 6 matches with over 2.5 goals in recent games. My prediction is that there will be over 2.5 goals in this match.",
+        "annual_profit": 95,
+        "annual_strike_rate": "77%"
+      },
+      {
+        "tipster": "Jodarocha",
+        "selection": "BTTS Yes",
+        "odds": 1.45,
+        "comment": "Koln have seen both teams score in 4 of their last 5 league games. Leipzig have scored in their last 9 games in all competitions.",
+        "annual_strike_rate": "57%"
+      }
+    ]
+  },
+  {
+    "match": "Atletico Madrid v Real Betis",
+    "league": "Spain Primera Liga",
+    "kickoff": "2026-02-08 18:30",
+    "rankings": "Atletico Madrid (4) - Real Betis (5)",
+    "olbg_url": "https://www.olbg.com/betting-tips/Football/European_Competitions/Spain_Primera_Liga/Atletico_Madrid_v_Real_Betis/1?event_id=1980110",
+    "bf_event_id": "35189119",
+    "tips": {
+      "full_time_result": {
+        "most_popular": "Atletico Madrid",
+        "selections": [
+          {
+            "selection": "Atletico Madrid",
+            "odds": 1.48,
+            "tips_ratio": "6/7",
+            "confidence": "86%",
+            "comments": 4,
+            "form": "W W D W W D"
+          },
+          {
+            "selection": "Draw",
+            "odds": 4.75,
+            "tips_ratio": "2/7",
+            "confidence": "29%"
+          },
+          {
+            "selection": "Real Betis",
+            "odds": 7.00,
+            "tips_ratio": "0/7",
+            "confidence": "0%",
+            "form": "W L D W L W"
+          }
+        ]
+      },
+      "total_goals": {
+        "over_2_5": { "odds": 1.67 },
+        "under_2_5": { "odds": 2.30 }
+      },
+      "btts": {
+        "yes": { "odds": 1.85 },
+        "no": { "odds": 2.05 }
+      },
+      "result_and_btts": {
+        "atletico_and_yes": { "odds": 3.10, "tips_ratio": "1/1", "confidence": "100%" }
+      }
+    },
+    "best_tipster": {
+      "name": "tipstonga",
+      "selection": "Atletico Madrid",
+      "odds": 1.48,
+      "comment": "Atletico Madrid, 3rd in La Liga, has an almost perfect home record — unbeaten with only 1 draw. Betis is 5th, 10 points behind. The visitors' away record is 2W 7D 2L, with 2 losses in their last 3 away games. The guest is diminished by several injured players.",
+      "annual_strike_rate": "58%",
+      "7_day_profit": 10,
+      "30_day_profit": -28
+    },
+    "notable_comments": [
+      {
+        "tipster": "edandumdum",
+        "selection": "Draw",
+        "odds": 4.75,
+        "comment": "Atletico Madrid won four of their last five meetings against Real Betis in all competitions. They, however, drew two of their last five matches in all competitions.",
+        "annual_strike_rate": "28%"
+      }
+    ]
+  },
+  {
+    "match": "Valencia v Real Madrid",
+    "league": "Spain Primera Liga",
+    "kickoff": "2026-02-08 21:00",
+    "rankings": "Valencia (17) - Real Madrid (2)",
+    "olbg_url": "https://www.olbg.com/betting-tips/Football/European_Competitions/Spain_Primera_Liga/Valencia_v_Real_Madrid/1?event_id=1980116",
+    "bf_event_id": "35189141",
+    "tips": {
+      "full_time_result": {
+        "most_popular": "Real Madrid",
+        "selections": [
+          {
+            "selection": "Real Madrid",
+            "odds": 1.61,
+            "tips_ratio": "6/7",
+            "confidence": "86%",
+            "comments": 2,
+            "form": "W W W W W W"
+          },
+          {
+            "selection": "Valencia",
+            "odds": 5.80,
+            "tips_ratio": "1/7",
+            "confidence": "14%",
+            "form": "D L D W W L"
+          },
+          {
+            "selection": "Draw",
+            "odds": 4.50,
+            "tips_ratio": "0/7",
+            "confidence": "0%"
+          }
+        ]
+      },
+      "total_goals": {
+        "over_2_5": { "odds": 1.62, "tips_ratio": "2/2", "confidence": "100%" },
+        "under_2_5": { "odds": 2.30, "tips_ratio": "0/2", "confidence": "0%" }
+      },
+      "btts": {
+        "yes": { "odds": 1.70, "tips_ratio": "2/2", "confidence": "100%" },
+        "no": { "odds": 2.15, "tips_ratio": "0/2", "confidence": "0%" }
+      },
+      "result_and_btts": {
+        "real_madrid_and_yes": { "odds": 3.00, "tips_ratio": "3/3", "confidence": "100%" }
+      }
+    },
+    "best_tipster": {
+      "name": "Jodarocha",
+      "selection": "Real Madrid",
+      "odds": 1.61,
+      "comment": "Real Madrid are unbeaten in their last 7 away league games and have won their last 6 league games. Valencia have won just 3 of their last 17 league games.",
+      "annual_strike_rate": "57%"
+    },
+    "notable_comments": [
+      {
+        "tipster": "nasko27",
+        "selection": "Over 2.5",
+        "odds": 1.60,
+        "comment": "The home team have 3 of 6 with over 2.5 goals in the last matches. The away team have 4 of 6 with over 2.5 goals in the last matches. My prediction for this match is over 2.5 goals.",
+        "annual_profit": 95,
+        "annual_strike_rate": "77%"
+      },
+      {
+        "tipster": "Jodarocha",
+        "selection": "BTTS Yes",
+        "odds": 1.70,
+        "comment": "Valencia have scored in their last 15 matches in all competitions. Real Madrid have scored at least two goals in their last 12 matches in all competitions.",
+        "annual_strike_rate": "57%"
+      },
+      {
+        "tipster": "StuartyBoy94",
+        "selection": "Real Madrid & Yes",
+        "odds": 3.00,
+        "comment": "Value here. Madrid have won six La Liga games in a row and can go one point behind Barca with a win. They have conceded 18 goals, though, 11 of them on the road. The last time Valencia failed to score was actually against Real Madrid, back on 1 November.",
+        "annual_strike_rate": "41%"
+      }
+    ]
+  }
+]
