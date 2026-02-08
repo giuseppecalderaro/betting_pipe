@@ -21,6 +21,10 @@ path = "src/bin/bpipe_scrape.rs"
 name = "bpipe-bet"
 path = "src/bin/bpipe_bet.rs"
 
+[[bin]]
+name = "bpipe-web"
+path = "src/bin/bpipe_web.rs"
+
 [dependencies]
 # Async runtime
 tokio = { version = "1", features = ["full"] }
@@ -56,3 +60,5 @@ tabled = "0.17"
 tokio-tungstenite = "0.26"
 futures-util = "0.3"
 scraper = "0.22"
+axum = "0.8"
+tower-http = { version = "0.6", features = ["fs", "cors"] }

@@ -9,6 +9,9 @@
   --lay-color: #f85149;
   --lay-bg: rgba(248, 81, 73, 0.12);
   --accent: #58a6ff;
+  --home-color: #3fb950;
+  --draw-color: #d29922;
+  --away-color: #f85149;
 }
 
 * {
@@ -260,4 +263,364 @@ body {
 
 .legend-swatch.lay {
   background: var(--lay-color);
+}
+
+/* ── Navigation ──────────────────────────────────────────────────── */
+
+.nav-bar {
+  display: flex;
+  gap: 0;
+  padding: 0 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-tab {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.nav-tab:hover {
+  color: var(--text);
+}
+
+.nav-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+/* ── Matches View ────────────────────────────────────────────────── */
+
+.matches-app {
+  max-width: 1600px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.controls-left {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.controls-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.file-select,
+.filter-select {
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+}
+
+.file-select:focus,
+.filter-select:focus {
+  border-color: var(--accent);
+}
+
+.search-input {
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  width: 220px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+}
+
+.search-input::placeholder {
+  color: var(--text-dim);
+}
+
+.refresh-btn {
+  padding: 8px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.refresh-btn:hover {
+  border-color: var(--accent);
+}
+
+.match-count {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.stat-pill {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.stat-pill.dim {
+  color: var(--text-dim);
+}
+
+.generated-at {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+/* ── Matches Table ───────────────────────────────────────────────── */
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.matches-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.matches-table thead {
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.matches-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.th-sortable {
+  cursor: pointer;
+}
+
+.th-sortable:hover {
+  color: var(--text);
+}
+
+.th-center {
+  text-align: center;
+}
+
+.th-status {
+  width: 32px;
+  text-align: center;
+}
+
+.th-prob {
+  min-width: 180px;
+}
+
+.th-id {
+  width: 100px;
+}
+
+.matches-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.matches-table tbody tr:hover {
+  background: rgba(88, 166, 255, 0.04);
+}
+
+.matches-table tbody tr.row-result {
+  opacity: 0.5;
+}
+
+.td-status {
+  text-align: center;
+}
+
+.result-check {
+  color: var(--home-color);
+  font-weight: 700;
+}
+
+.pending-dot {
+  color: var(--accent);
+  font-size: 8px;
+}
+
+.td-match {
+  font-weight: 500;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.td-date {
+  white-space: nowrap;
+  color: var(--text-dim);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px;
+}
+
+.td-tip {
+  text-align: center;
+}
+
+.td-bf-name {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-dim);
+}
+
+.td-bf-id code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  background: var(--surface);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ── Tip Badges ──────────────────────────────────────────────────── */
+
+.tip-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.tip-badge.home {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--home-color);
+}
+
+.tip-badge.away {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--away-color);
+}
+
+.tip-badge.draw {
+  background: rgba(210, 153, 34, 0.15);
+  color: var(--draw-color);
+}
+
+.tip-badge.home-draw {
+  background: linear-gradient(90deg, rgba(63, 185, 80, 0.15), rgba(210, 153, 34, 0.15));
+  color: var(--draw-color);
+}
+
+.tip-badge.draw-away {
+  background: linear-gradient(90deg, rgba(210, 153, 34, 0.15), rgba(248, 81, 73, 0.15));
+  color: var(--away-color);
+}
+
+.tip-badge.home-away {
+  background: linear-gradient(90deg, rgba(63, 185, 80, 0.15), rgba(248, 81, 73, 0.15));
+  color: var(--accent);
+}
+
+/* ── Probability Bar ─────────────────────────────────────────────── */
+
+.prob-bar {
+  display: flex;
+  height: 20px;
+  border-radius: 4px;
+  overflow: hidden;
+  min-width: 160px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.prob-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.2s;
+}
+
+.prob-home {
+  background: rgba(63, 185, 80, 0.25);
+  color: var(--home-color);
+}
+
+.prob-draw {
+  background: rgba(210, 153, 34, 0.2);
+  color: var(--draw-color);
+}
+
+.prob-away {
+  background: rgba(248, 81, 73, 0.2);
+  color: var(--away-color);
+}
+
+/* ── States ──────────────────────────────────────────────────────── */
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  color: var(--text-dim);
+  font-size: 16px;
+}
+
+.error-msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  color: var(--lay-color);
+  font-size: 16px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-dim);
+  font-size: 14px;
 }
