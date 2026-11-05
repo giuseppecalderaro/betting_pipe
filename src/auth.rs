@@ -5,7 +5,7 @@ use crate::config::{AuthConfig, BetfairConfig};
 use crate::error::{BpipeError, Result};
 
 /// Response from Betfair login endpoints.
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct LoginResponse {
     session_token: Option<String>,
@@ -16,10 +16,19 @@ struct LoginResponse {
 }
 
 /// Active session holding the token and app key.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Session {
     pub session_token: String,
     pub app_key: String,
+}
+
+impl std::fmt::Debug for Session {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Session")
+            .field("session_token", &"<redacted>")
+            .field("app_key", &"<redacted>")
+            .finish()
+    }
 }
 
 /// Perform authentication based on the provided config.
@@ -68,7 +77,7 @@ async fn interactive_login(
 
     let status = resp.status();
     let body = resp.text().await?;
-    debug!("Login response status={}, body={}", status, body);
+    debug!("Login response status={} (body omitted: contains session token)", status);
 
     if !status.is_success() {
         return Err(BpipeError::AuthError(format!(
@@ -141,7 +150,7 @@ async fn cert_login(
 
     let status = resp.status();
     let body = resp.text().await?;
-    debug!("Cert login response status={}, body={}", status, body);
+    debug!("Cert login response status={} (body omitted: contains session token)", status);
 
     if !status.is_success() {
         return Err(BpipeError::AuthError(format!(

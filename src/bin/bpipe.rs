@@ -15,15 +15,15 @@ use bpipe::scraper::{self, ScrapedMatch};
 #[command(name = "bpipe", version, about = "Real-time Betfair Exchange betting CLI")]
 struct Cli {
     /// Betfair Application Key
-    #[arg(long, env = "BETFAIR_APP_KEY")]
+    #[arg(long, env = "BETFAIR_APP_KEY", hide_env_values = true)]
     app_key: String,
 
     /// Betfair username
-    #[arg(long, env = "BETFAIR_USERNAME")]
+    #[arg(long, env = "BETFAIR_USERNAME", hide_env_values = true)]
     username: String,
 
     /// Betfair password
-    #[arg(long, env = "BETFAIR_PASSWORD")]
+    #[arg(long, env = "BETFAIR_PASSWORD", hide_env_values = true)]
     password: String,
 
     /// Path to client certificate (PEM) for cert-based auth

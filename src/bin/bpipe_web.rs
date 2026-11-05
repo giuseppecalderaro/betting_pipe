@@ -12,10 +12,7 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tower_http::{
-    cors::CorsLayer,
-    services::ServeDir,
-};
+use tower_http::services::ServeDir;
 use tracing::{info, warn, error};
 
 use bpipe::types::betting::*;
@@ -36,19 +33,23 @@ struct Cli {
     static_dir: PathBuf,
 
     /// Port to listen on
-    #[arg(long, default_value_t = 3001)]
+    #[arg(long, env = "BPIPE_WEB_PORT", default_value_t = 3001)]
     port: u16,
 
+    /// Address to bind to. Defaults to loopback only; use 0.0.0.0 to expose on the network.
+    #[arg(long, env = "BPIPE_WEB_HOST", default_value = "127.0.0.1")]
+    host: String,
+
     /// Betfair Application Key
-    #[arg(long, env = "BETFAIR_APP_KEY")]
+    #[arg(long, env = "BETFAIR_APP_KEY", hide_env_values = true)]
     app_key: String,
 
     /// Betfair username
-    #[arg(long, env = "BETFAIR_USERNAME")]
+    #[arg(long, env = "BETFAIR_USERNAME", hide_env_values = true)]
     username: String,
 
     /// Betfair password
-    #[arg(long, env = "BETFAIR_PASSWORD")]
+    #[arg(long, env = "BETFAIR_PASSWORD", hide_env_values = true)]
     password: String,
 
     /// Path to client certificate (for bot login)
@@ -641,13 +642,13 @@ async fn main() -> Result<()> {
             "⚠  Static dir {:?} not found — serving API only. Build the frontend with: cd web && npm run build",
             cli.static_dir
         );
-        api.fallback_service(tower_http::services::ServeDir::new("."))
+        // Never fall back to serving the working directory: it may contain
+        // .env files, certificates, and logs.
+        api
     };
 
-    let app = app.layer(CorsLayer::permissive());
-
-    let addr = format!("0.0.0.0:{}", cli.port);
-    println!("🌐 bpipe-web listening on http://localhost:{}", cli.port);
+    let addr = format!("{}:{}", cli.host, cli.port);
+    println!("🌐 bpipe-web listening on http://{}", addr);
     println!("   Data dir: {:?}", cli.data_dir);
     println!("   Polling Betfair every {} seconds", cli.poll_interval);
 

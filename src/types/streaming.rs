@@ -3,13 +3,24 @@ use serde::{Deserialize, Serialize};
 // ─── Outgoing messages (client → Betfair) ───────────────
 
 /// Authentication message sent after connection.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StreamAuthentication {
     pub op: String, // "authentication"
     pub id: i64,
     pub app_key: String,
     pub session: String,
+}
+
+impl std::fmt::Debug for StreamAuthentication {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("StreamAuthentication")
+            .field("op", &self.op)
+            .field("id", &self.id)
+            .field("app_key", &"<redacted>")
+            .field("session", &"<redacted>")
+            .finish()
+    }
 }
 
 /// Market subscription request.

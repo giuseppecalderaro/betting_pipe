@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 /// Configuration for the Betfair API client.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct BetfairConfig {
     /// Application key (required for all API calls).
     pub app_key: String,
@@ -16,8 +16,19 @@ pub struct BetfairConfig {
     pub urls: ApiUrls,
 }
 
+impl std::fmt::Debug for BetfairConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BetfairConfig")
+            .field("app_key", &"<redacted>")
+            .field("auth", &self.auth)
+            .field("locale", &self.locale)
+            .field("urls", &self.urls)
+            .finish()
+    }
+}
+
 /// Authentication configuration.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum AuthConfig {
     /// Interactive login with username and password.
     Interactive {
@@ -31,6 +42,25 @@ pub enum AuthConfig {
         cert_path: PathBuf,
         key_path: PathBuf,
     },
+}
+
+impl std::fmt::Debug for AuthConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AuthConfig::Interactive { username, .. } => f
+                .debug_struct("Interactive")
+                .field("username", username)
+                .field("password", &"<redacted>")
+                .finish(),
+            AuthConfig::Certificate { username, cert_path, key_path, .. } => f
+                .debug_struct("Certificate")
+                .field("username", username)
+                .field("password", &"<redacted>")
+                .field("cert_path", cert_path)
+                .field("key_path", key_path)
+                .finish(),
+        }
+    }
 }
 
 /// API endpoint URLs.
